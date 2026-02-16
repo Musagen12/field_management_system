@@ -1,0 +1,16 @@
+fastapi[standard]
+uvicorn
+pydantic
+pydantic-core
+sqlmodel
+passlib[bcrypt]>=1.7.4
+bcrypt==3.2.2
+python-jose[cryptography]
+aiofiles
+httpx
+pyOpenSSL
+requests
+pandas
+redis
+celery
+celery-redbeat
