@@ -10,7 +10,6 @@ aiofiles
 httpx
 pyOpenSSL
 requests
-pandas
 redis
 celery
 celery-redbeat

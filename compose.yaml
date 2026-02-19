@@ -1,0 +1,37 @@
+services:
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - redis
+
+  celery:
+    build: ./backend
+    command: celery -A celery_app worker --beat --loglevel=info
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - redis
+      - api
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  task-dispatch-pro:
+    build: ./task-dispatch-pro
+    ports:
+      - "6057:6057"
+    depends_on:
+      - api
+
+  worker-insight-hub:
+    build: ./worker-insight-hub
+    ports:
+      - "5679:5679"
+    depends_on:
+      - api

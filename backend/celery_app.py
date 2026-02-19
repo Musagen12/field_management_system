@@ -5,14 +5,18 @@ from core.database import get_session
 from sqlmodel import select
 from models.task import DutyRoster, DutyRosterDay, Task, TaskTemplate, TaskStatus
 from models.user import User, UserRole
+from dotenv import load_dotenv
 import httpx
+import os
+
+load_dotenv()
 
 EAT = timezone(timedelta(hours=3))
 
 celery = Celery(
     "tasks",
-    broker="redis://localhost:6379/0",
-    backend="redis://localhost:6379/0",
+    broker=os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0"),
+    backend=os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/0"),
 )
 
 celery.conf.beat_schedule = {
