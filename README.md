@@ -177,6 +177,6 @@ chmod +x run.sh
 
 <div align="center">
 
-Made with ❤️ for field operations teams
+Made for field operations teams
 
 </div>
