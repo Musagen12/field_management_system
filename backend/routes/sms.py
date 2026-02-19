@@ -11,13 +11,10 @@ from pydantic import BaseModel
 router = APIRouter(tags=["SMS"])
 logger = logging.getLogger(__name__)
 
-# --- Config ---
-AT_USERNAME = os.getenv("AFRICASTALKING_USERNAME", "sandbox")
-AT_API_KEY = os.getenv(
-    "AFRICASTALKING_API_KEY",
-    "atsk_398db02bbf4afb3b0be1f838e7acbe244f900abbfd60cef930a1283db34b9565712d6c2d",
-)
-AT_SENDER_ID = os.getenv("AFRICASTALKING_SENDER_ID", "32578")
+# Config
+AT_USERNAME = os.getenv("AFRICASTALKING_USERNAME")
+AT_API_KEY = os.getenv("AFRICASTALKING_API_KEY")
+AT_SENDER_ID = os.getenv("AFRICASTALKING_SENDER_ID")
 
 AT_BASE_URL = (
     "https://api.africastalking.com/version1/messaging"
@@ -25,9 +22,7 @@ AT_BASE_URL = (
     else "https://api.sandbox.africastalking.com/version1/messaging"
 )
 
-
-
-# --- Core function ---
+# Core function
 def send_sms(phone_number: str, message: str) -> dict:
     # Normalize phone number
     normalized = phone_number.strip()
@@ -74,13 +69,13 @@ def send_sms(phone_number: str, message: str) -> dict:
         raise
 
 
-# --- Request Model ---
+# Request Model
 class SMSRequest(BaseModel):
     phone_number: str
     message: str
 
 
-# --- Endpoint ---
+# Endpoint
 @router.post("/send-sms")
 def send_sms_endpoint(req: SMSRequest):
     try:

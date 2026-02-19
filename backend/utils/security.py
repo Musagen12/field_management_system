@@ -1,3 +1,4 @@
+import os
 import uuid
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
@@ -7,12 +8,16 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session
 from core.database import get_session
 from models.user import User
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Config
-SECRET_KEY = "xdXqTpxa1U1ms8vmuXgfQH1bfGecFsoSM8ozhEr6)mS02QgWwe91rP33ZPloQ"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
-REFRESH_TOKEN_EXPIRE_DAYS = 7
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", 7))
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
