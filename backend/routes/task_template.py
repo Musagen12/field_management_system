@@ -15,7 +15,7 @@ class TaskType(str, enum.Enum):
     ONE_OFF_SHORT = "one_off_short"
     ONE_OFF_LONG = "one_off_long" 
 
-# --- Response models ---
+#  Response models
 class FacilityResponseModel(BaseModel):
     name: str
 
@@ -44,9 +44,9 @@ class TaskTemplateUpdate(BaseModel):
     facility_id: Optional[str] = None
 
 
-# --- Routes ---
+# Routes
 
-# 1️⃣ List all templates
+# List all templates
 @router.get("/task-templates/", response_model=List[TaskTemplateRead])
 def list_templates(session: Session = Depends(get_session), admin: User = Depends(admin_required)):
     templates = session.exec(select(TaskTemplate)).all()
@@ -65,7 +65,7 @@ def list_templates(session: Session = Depends(get_session), admin: User = Depend
         )
     return response
 
-# 2️⃣ Create a new template
+# Create a new template
 @router.post("/task-templates/", response_model=TaskTemplateRead)
 def create_template(template: TaskTemplateCreate, session: Session = Depends(get_session), admin: User = Depends(admin_required)):
     facility = session.get(Facility, template.facility_id)
@@ -90,7 +90,7 @@ def create_template(template: TaskTemplateCreate, session: Session = Depends(get
         facility=FacilityResponseModel(name=facility.name)
     )
 
-# 3️⃣ View a single template
+# View a single template
 @router.get("/task-templates/{template_id}", response_model=TaskTemplateRead)
 def view_template(template_id: str, session: Session = Depends(get_session), admin: User = Depends(admin_required)):
     template = session.get(TaskTemplate, template_id)
@@ -104,7 +104,7 @@ def view_template(template_id: str, session: Session = Depends(get_session), adm
         facility=FacilityResponseModel(name=template.facility.name)
     )
 
-# 4️⃣ Update a template
+# Update a template
 @router.patch("/task-templates/{template_id}", response_model=TaskTemplateRead)
 def update_template(template_id: str, template_update: TaskTemplateUpdate, session: Session = Depends(get_session), admin: User = Depends(admin_required)):
     template = session.get(TaskTemplate, template_id)
@@ -136,7 +136,7 @@ def update_template(template_id: str, template_update: TaskTemplateUpdate, sessi
         facility=FacilityResponseModel(name=template.facility.name)
     )
 
-# 5️⃣ Delete a template
+# Delete a template
 @router.delete("/task-templates/{template_id}", status_code=200)
 def delete_template(template_id: str, session: Session = Depends(get_session), admin: User = Depends(admin_required)):
     template = session.get(TaskTemplate, template_id)

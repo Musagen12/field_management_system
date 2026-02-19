@@ -290,15 +290,6 @@ def remove_worker(username: str, session: Session = Depends(get_session), admin:
     return {"detail": f"Worker '{worker.username}' removed and SMS sent successfully"}
 
 
-
-
-
-
-
-
-
-
-
 class TaskResponse(BaseModel):
     id: str
     template_id: str
@@ -312,106 +303,6 @@ class TaskResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-# @router.post("/tasks/", response_model=TaskResponse)
-# def create_task(
-#     template_id: str,  # changed from title/description
-#     assigned_to: str,
-#     session: Session = Depends(get_session),
-#     admin: User = Depends(admin_required)
-# ):
-#     try:
-#         # 1️⃣ Ensure worker exists
-#         worker = session.exec(
-#             select(User).where(User.username == assigned_to)
-#         ).first()
-#         if not worker:
-#             raise HTTPException(status_code=404, detail="Assigned worker not found")
-
-#         # 2️⃣ Ensure they are a worker
-#         if worker.role != UserRole.worker:
-#             raise HTTPException(status_code=400, detail="Assigned user is not a worker")
-
-#         # 3️⃣ Ensure worker has no active tasks
-#         active_task = session.exec(
-#             select(Task).where(
-#                 Task.assigned_to == assigned_to,
-#                 Task.status.in_([TaskStatus.pending, TaskStatus.in_progress])
-#             )
-#         ).first()
-#         if active_task:
-#             raise HTTPException(
-#                 status_code=400,
-#                 detail=f"Worker '{assigned_to}' already has an active task"
-#             )
-
-#         # 4️⃣ Load template
-#         template = session.get(TaskTemplate, template_id)
-#         if not template:
-#             raise HTTPException(status_code=404, detail="Task template not found")
-        
-#         task = Task(
-#             template_id=template.id,
-#             title=template.title,
-#             description=template.description,
-#             assigned_to=assigned_to,
-#             assigned_by=str(admin.username),  # keep string
-#             status=TaskStatus.pending,
-#             created_at=datetime.now(EAT),
-#             updated_at=datetime.now(EAT)
-#         )
-
-#         session.add(task)
-#         session.commit()
-#         session.refresh(task)
-
-#         # ✅ Send SMS notification (unchanged)
-#         sms_payload = {
-#             "phone_number": worker.phone_number,
-#             "message": f"You have been assigned a new task: {task.title}"
-#         }
-
-#         try:
-#             with httpx.Client() as client:
-#                 print("👉 Sending SMS request...")
-#                 sms_response = client.post("http://localhost:8000/sms/send-sms", json=sms_payload)
-#                 sms_response.raise_for_status()
-
-#             sms_result = sms_response.json()
-#             success = sms_result.get("success", False)
-
-#             # Log SMS success/failure
-#             log_action(
-#                 session,
-#                 performed_by=admin.id,
-#                 action="sms_notification_sent" if success else "sms_notification_failed",
-#                 details=f"SMS to {worker.username} for task '{task.title}' | Result: {sms_result}"
-#             )
-
-#         except Exception as sms_err:
-#             # Log SMS failure
-#             log_action(
-#                 session,
-#                 performed_by=admin.id,
-#                 action="sms_notification_failed",
-#                 details=f"SMS to {worker.username} for task '{task.title}' failed | Error: {sms_err}"
-#             )
-
-#         # ✅ Log task creation
-#         log_action(
-#             session,
-#             performed_by=admin.id,
-#             action="created_task",
-#             details=f"Task '{task.title}' assigned to {task.assigned_to}"
-#         )
-
-#         return task  # FastAPI will serialize via TaskResponse
-
-#     except HTTPException:
-#         raise
-#     except Exception as e:
-#         session.rollback()
-#         raise HTTPException(status_code=500, detail=f"Error creating task: {str(e)}")
 
 @router.post("/tasks/", response_model=TaskResponse)
 def create_task(
@@ -445,7 +336,7 @@ def create_task(
                 detail=f"Worker '{assigned_to}' already has an active task"
             )
 
-        # --- NEW: Check for upcoming rostered tasks within the next hour ---
+        # Check for upcoming rostered tasks within the next hour
         now_dt = datetime.now(EAT)
         today_str = now_dt.strftime("%A").upper()
 
@@ -520,7 +411,7 @@ def create_task(
                 details=f"SMS to {worker.username} for task '{task.title}' failed | Error: {sms_err}"
             )
 
-        # ✅ Log task creation
+        # Log task creation
         log_action(
             session,
             performed_by=admin.id,
@@ -648,39 +539,16 @@ def reset_task_status(
     session: Session = Depends(get_session),
     admin: User = Depends(admin_required)
 ):
-    # 1️⃣ Find the task
+    # Find the task
     task = session.exec(select(Task).where(Task.id == task_id)).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    # 2️⃣ Find the worker
+    # Find the worker
     worker = session.exec(select(User).where(User.username == task.assigned_to)).first()
     if not worker:
         raise HTTPException(status_code=404, detail="Assigned worker not found")
 
-    # 3️⃣ Delete attached evidences (images/files)
-    # evidences = session.exec(select(TaskEvidence).where(TaskEvidence.task_id == task.id)).all()
-    # for evidence in evidences:
-    #     try:
-    #         full_path = os.path.join(UPLOADS_DIR, evidence.file_url)
-    #         if os.path.exists(full_path):
-    #             os.remove(full_path)
-
-    #         session.delete(evidence)
-
-    #         log_action(
-    #             session,
-    #             performed_by=admin.id,
-    #             action="evidence_deleted",
-    #             details=f"Deleted evidence {evidence.file_url} for task '{task.title}'"
-    #         )
-    #     except Exception as file_err:
-    #         log_action(
-    #             session,
-    #             performed_by=admin.id,
-    #             action="evidence_deletion_failed",
-    #             details=f"Failed to delete evidence {evidence.file_url} | Error: {file_err}"
-    #         )
     evidences = session.exec(select(TaskEvidence).where(TaskEvidence.task_id == task.id)).all()
     for evidence in evidences:
         try:
@@ -705,7 +573,7 @@ def reset_task_status(
 
     session.commit()
 
-    # 4️⃣ Reset status to pending and update timestamp
+    # Reset status to pending and update timestamp
     task.status = TaskStatus.reworked
     task.updated_at = datetime.now(EAT)
     session.add(task)
@@ -728,7 +596,7 @@ def reset_task_status(
     session.refresh(rework_task)
 
 
-    # 5️⃣ Log the rework request in TaskRework table
+    # Log the rework request in TaskRework table
     task_rework = TaskRework(
         task_id=task.id,
         worker_name=task.assigned_to,
@@ -738,7 +606,7 @@ def reset_task_status(
     session.add(task_rework)
     session.commit()
 
-    # 5️⃣ Notify worker via SMS
+    # Notify worker via SMS
     sms_payload = {
         "phone_number": worker.phone_number,
         "message": f"Your task '{task.title}' has been reset by admin. Reason: {reason}. "
@@ -768,7 +636,7 @@ def reset_task_status(
             details=f"Task '{task.title}' reset → SMS to {worker.phone_number} failed | Reason: {reason} | Error: {sms_err}"
         )
 
-    # 6️⃣ Log the reset action
+    # Log the reset action
     log_action(
         session,
         performed_by=admin.id,
@@ -893,7 +761,7 @@ def update_complaint_status(
     return {"id": str(updated.id), "status": updated.status, "table": updated.__class__.__name__}
 
 
-# Optional: View audit logs
+# View audit logs
 @router.get("/audit-logs/", response_model=List[AuditLog])
 def view_audit_logs(session: Session = Depends(get_session), admin: User = Depends(admin_required)):
     logs = session.exec(select(AuditLog)).all()

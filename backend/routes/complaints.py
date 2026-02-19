@@ -25,7 +25,7 @@ async def create_complaint(
     file_path: str | None = None
 
     if file:
-        # ✅ Check MIME type
+        # Check type
         if file.content_type not in ALLOWED_IMAGE_TYPES:
             raise HTTPException(
                 status_code=400,

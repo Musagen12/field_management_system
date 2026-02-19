@@ -18,4 +18,4 @@ class ComplaintRead(BaseModel):
     evidence: Optional[str]  # path to file if uploaded
 
     class Config:
-        from_attributes = True  # allows reading from ORM objects
+        from_attributes = True

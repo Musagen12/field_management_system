@@ -23,6 +23,6 @@ class Complaint(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True, index=True)
     description: str
     category: ComplaintCategory
-    evidence: Optional[str] = None  # could be JSON list of URLs if you later allow uploads
+    evidence: Optional[str] = None
     status: ComplaintStatus = Field(default=ComplaintStatus.pending)
     submitted_at: datetime = Field(default_factory=lambda: datetime.now(EAT))

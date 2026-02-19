@@ -70,7 +70,7 @@ def log_action(session: Session, performed_by: uuid.UUID, action: str, details: 
         session.add(audit)
         session.commit()
     except Exception as e:
-        print(f"⚠️ Failed to log action: {e}")
+        print(f"Failed to log action: {e}")
         session.rollback()
 
 # Get the currently authenticated worker's profile.
@@ -85,7 +85,7 @@ def get_profile(
 
     worker = session.get(User, current_user.id)
 
-    # ✅ Log the action using helper
+    # Log the action using helper
     log_action(
         session,
         performed_by=current_user.id,
@@ -108,7 +108,7 @@ def get_assigned_tasks(
     statement = select(Task).where(Task.assigned_to == current_user.username)
     tasks = session.exec(statement).all()
 
-    # ✅ Log the action
+    # Log the action
     log_action(
         session,
         performed_by=current_user.id,
@@ -129,15 +129,15 @@ async def upload_task_evidence(
     if not task:
         raise HTTPException(404, "Task not found")
 
-    # ✅ Ensure worker owns this task
+    # Ensure worker owns this task
     if task.assigned_to != current_user.username:
         raise HTTPException(403, "Not your task")
     
-    # ✅ Ensure task is in progress
+    # Ensure task is in progress
     if task.status != TaskStatus.in_progress:
         raise HTTPException(400, "Acknowledge the task first")
 
-    # ✅ Ensure at least 1 file
+    # Ensure at least 1 file
     if not files:
         raise HTTPException(400, "At least one evidence photo is required")
 
@@ -158,13 +158,13 @@ async def upload_task_evidence(
         session.add(evidence)
         saved_files.append(file_path)
 
-    # ✅ Mark task as completed
+    # Mark task as completed
     task.status = TaskStatus.completed
     session.add(task)
     session.commit()
     session.refresh(task)
 
-    # ✅ Log audit action
+    # Log audit action
     log_action(
         session,
         performed_by=current_user.id,
@@ -191,7 +191,7 @@ def acknowledge_task(task_id: str, current_user: User = Depends(get_current_user
     session.commit()
     session.refresh(task)
 
-    # ✅ Log action
+    # Log action
     log_action(
         session,
         performed_by=current_user.id,
@@ -222,7 +222,7 @@ def update_password(
     session.add(worker)
     session.commit()
 
-    # ✅ Log action
+    # Log action
     log_action(
         session,
         performed_by=current_user.id,
@@ -250,7 +250,7 @@ def submit_employee_complaint(
     session.commit()
     session.refresh(complaint)
 
-    # ✅ Log complaint submission
+    # Log complaint submission
     log_action(
         session,
         performed_by=current_user.id,

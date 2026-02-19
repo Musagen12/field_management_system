@@ -12,7 +12,7 @@ EAT = timezone(timedelta(hours=3))
 celery = Celery(
     "tasks",
     broker="redis://localhost:6379/0",
-    backend="redis://localhost:6379/0",  # optional if you need results
+    backend="redis://localhost:6379/0",
 )
 
 celery.conf.beat_schedule = {
@@ -31,7 +31,7 @@ def check_duty_rosters():
     now = datetime.now(EAT)
     today_str = now.strftime("%A").upper()
 
-    # ✅ Use next() to get session from generator
+    # Use next() to get session from generator
     session = next(get_session())
 
     try:
@@ -108,10 +108,7 @@ def check_duty_rosters():
             )
 
     finally:
-        session.close()  # ✅ Make sure to close the session manually
-
-
-
+        session.close()  # Make sure to close the session manually
 
 
 

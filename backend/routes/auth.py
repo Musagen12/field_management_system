@@ -48,6 +48,7 @@ def log_action(session: Session, performed_by: uuid.UUID, action: str, details: 
     session.add(audit)
     session.commit()
 
+########## For testing using the documentation ############
 
 # @router.post("/login", response_model=LoginResponse)
 # def login(

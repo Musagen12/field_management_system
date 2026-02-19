@@ -187,7 +187,7 @@ def execution_time_by_task_and_worker(session: Session = Depends(get_session)):
 
 @router.get("/workers/ranked-response-time")
 def rank_workers_by_response_time(db: Session = Depends(get_session)):
-    # 1️⃣ Get all workers
+    # Get all workers
     workers = db.exec(select(User).where(User.role == UserRole.worker)).all()
     if not workers:
         raise HTTPException(status_code=404, detail="No workers found")
@@ -195,7 +195,7 @@ def rank_workers_by_response_time(db: Session = Depends(get_session)):
     aggregated: List[Dict] = []
 
     for worker in workers:
-        # 2️⃣ Get all non-pending tasks for the worker
+        # Get all non-pending tasks for the worker
         tasks = db.exec(
             select(Task).where(
                 Task.assigned_to == worker.username,
@@ -229,7 +229,7 @@ def rank_workers_by_response_time(db: Session = Depends(get_session)):
     if not aggregated:
         raise HTTPException(status_code=404, detail="No valid analytics data")
 
-    # 3️⃣ Rank workers by fastest average response time
+    # Rank workers by fastest average response time
     aggregated.sort(key=lambda x: x["average_response_time_min"])
 
     return {
@@ -277,10 +277,6 @@ def task_completion_times(session: Session = Depends(get_session)):
 
 @router.get("/workers/rework-frequency", response_model=Dict[str, int])
 def workers_rework_frequency(session: Session = Depends(get_session)):
-    """
-    Returns a dictionary where the key is the worker username and the value
-    is the number of times they were told to redo tasks.
-    """
     # Aggregate by worker_name
     stmt = (
         select(TaskRework.worker_name, func.count(TaskRework.id))
