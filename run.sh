@@ -2,6 +2,7 @@
 # ===============================
 # Full project setup script (Kali-safe)
 # Handles backend, Celery, Redis, and two NPM projects
+# Frontends are started last
 # ===============================
 
 set -e
@@ -15,7 +16,6 @@ echo "📁 Script directory: $SCRIPT_DIR"
 # -------------------------------
 # Step 1: Sanity checks
 # -------------------------------
-
 command -v python3 >/dev/null || {
     echo "❌ python3 not found"
     exit 1
@@ -39,7 +39,6 @@ fi
 # -------------------------------
 # Step 2: Install Redis if missing
 # -------------------------------
-
 if ! command -v redis-server >/dev/null; then
     echo "🔧 Installing Redis..."
     sudo apt update
@@ -54,16 +53,13 @@ echo "✅ Redis is running"
 # Step 3: Backend setup
 # -------------------------------
 BACKEND_DIR="$SCRIPT_DIR/backend"
-
 if [ ! -d "$BACKEND_DIR" ]; then
     echo "❌ backend folder not found"
     exit 1
 fi
 
 cd "$BACKEND_DIR"
-
 echo "=== Setting up Python environment ==="
-# Recreate venv if missing
 if [ ! -f "venv/bin/python" ]; then
     echo "🧹 Creating virtual environment..."
     rm -rf venv
@@ -112,7 +108,20 @@ CELERY_PID=$!
 echo "✅ Celery running (PID: $CELERY_PID)"
 
 # -------------------------------
-# Step 7: NPM projects
+# Step 7: Seed admin user
+# -------------------------------
+echo "⏳ Waiting 40 seconds for backend to initialize..."
+sleep 40
+
+if [ -f "$BACKEND_DIR/seed_admin.py" ]; then
+    echo "🌱 Seeding admin user..."
+    python "$BACKEND_DIR/seed_admin.py"
+else
+    echo "⚠️ seed_admin.py not found, skipping."
+fi
+
+# -------------------------------
+# Step 8: Start NPM frontend projects (last)
 # -------------------------------
 start_npm_project() {
     local project_dir="$SCRIPT_DIR/$1"
@@ -131,19 +140,6 @@ start_npm_project() {
 
 start_npm_project "task-dispatch-pro"
 start_npm_project "worker-insight-hub"
-
-# -------------------------------
-# Step 8: Post-start tasks
-# -------------------------------
-echo "⏳ Waiting 40 seconds for backend to initialize..."
-sleep 40
-
-if [ -f "$BACKEND_DIR/seed_admin.py" ]; then
-    echo "🌱 Seeding admin user..."
-    python "$BACKEND_DIR/seed_admin.py"
-else
-    echo "⚠️ seed_admin.py not found, skipping."
-fi
 
 # -------------------------------
 # Step 9: Summary
