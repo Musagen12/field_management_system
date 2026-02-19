@@ -13,6 +13,24 @@
 
 ---
 
+## 🚨 The Problem This Solves
+
+Field operations teams have traditionally relied on **manual, paper-based checklists** to track worker tasks — like the washroom cleaning checklist shown below, used by Jubilant Cleaning Services Limited:
+
+> *Cleaners manually fill in task completion times (e.g. "Flush toilets", "Mop floor", "Refill soap dispenser") across multiple rounds per day. Supervisors then physically inspect, sign off, and annotate issues — all on paper.*
+
+This approach creates serious operational challenges:
+
+- 📄 **No real-time visibility** — managers can't see task status without physically checking
+- ❌ **Missed tasks go undetected** — gaps in the sheet are only caught during periodic supervisor rounds
+- 🔍 **Accountability gaps** — handwritten entries are hard to verify, audit, or trace
+- 📦 **No historical analytics** — paper records make it nearly impossible to spot trends or patterns
+- 🔔 **Delayed notifications** — issues like missing supplies or incomplete tasks aren't flagged instantly
+
+**Field Worker Tracker digitizes this entire workflow** — replacing paper checklists with a real-time web platform where tasks are dispatched, tracked, completed, and audited digitally, with instant SMS alerts and a full analytics dashboard.
+
+---
+
 ## 📖 Overview
 
 Field Worker Tracker is a full-stack platform built for field operations teams. It combines a robust FastAPI backend with two dedicated frontend dashboards, background task processing via Celery, and real-time SMS notifications powered by Africa's Talking.
@@ -159,8 +177,8 @@ chmod +x run.sh
 ./run.sh
 
 # 3. Open your browser
-# Task Management  → http://localhost:6057
-# Worker Analytics → http://localhost:5679
+# Task Management  → http://localhost:5679
+# Worker Analytics → http://localhost:6057
 # API Explorer     → http://localhost:8000/docs
 ```
 
@@ -177,6 +195,6 @@ chmod +x run.sh
 
 <div align="center">
 
-Made for field operations teams
+Made with ❤️ for field operations teams
 
 </div>
