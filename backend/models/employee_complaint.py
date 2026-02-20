@@ -13,7 +13,7 @@ class EmployeeComplaintStatus(str, enum.Enum):
 
 class EmployeeComplaint(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    worker_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)  # worker who submitted the complaint
+    worker_id: uuid.UUID = Field(foreign_key="user.id")  # worker who submitted the complaint
     description: str
     status: EmployeeComplaintStatus = Field(default=EmployeeComplaintStatus.pending)
     submitted_at: datetime = Field(default_factory=lambda: datetime.now(EAT))
