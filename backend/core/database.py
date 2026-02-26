@@ -2,13 +2,18 @@ from typing import Annotated
 from models import audit_log, complaints, task, user
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlmodel import Field, Session, SQLModel, create_engine, select
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
+db_username = os.getenv("DB_USERNAME")
+db_password = os.getenv("DB_PASSWORD")
+db_name = os.getenv("DB_NAME")
 
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
+DB_URL = f"mysql+pymysql://{db_username}:{db_password}@localhost:3306/{db_name}"
+
+engine = create_engine(DB_URL, echo=False)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
