@@ -114,7 +114,7 @@ class TaskRework(SQLModel, table=True):
     )
 
     task_id: str = Field(foreign_key="task.id", index=True)
-    worker_name: str = Field(foreign_key="task.assigned_to", index=True)
+    worker_name: str
 
     reset_by: str
 
