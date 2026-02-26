@@ -15,8 +15,8 @@ DB_URL = f"mysql+pymysql://{db_username}:{db_password}@localhost:3306/{db_name}"
 
 engine = create_engine(DB_URL, echo=False)
 
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
+# def create_db_and_tables():
+#     SQLModel.metadata.create_all(engine)
 
 def get_session():
     with Session(engine) as session:

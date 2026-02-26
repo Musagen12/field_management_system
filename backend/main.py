@@ -1,17 +1,19 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from core.database import create_db_and_tables
+# from core.database import create_db_and_tables
 from contextlib import asynccontextmanager
 from routes import complaints, auth, worker, admin, sms, task_template, analytics, facilities, buildings, duty_roster
 import os
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    create_db_and_tables()
-    yield
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     create_db_and_tables()
+#     yield
 
-app = FastAPI(title="Field Service Tracker", lifespan=lifespan)
+# app = FastAPI(title="Field Service Tracker", lifespan=lifespan)
+
+app = FastAPI(title="Field Service Tracker")
 
 # CORS middleware
 app.add_middleware(
