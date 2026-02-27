@@ -19,7 +19,9 @@ db_username = os.getenv("DB_USERNAME")
 db_password = os.getenv("DB_PASSWORD")
 db_name = os.getenv("DB_NAME")
 
-DB_URL = f"mysql+pymysql://{db_username}:{db_password}@localhost:3306/{db_name}"
+# DB_URL = f"mysql+pymysql://{db_username}:{db_password}@localhost:3306/{db_name}"
+
+DB_URL = f"mysql+pymysql://{db_username}:{db_password}@db:3306/{db_name}"
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
