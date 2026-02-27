@@ -6,7 +6,14 @@ services:
     env_file:
       - ./backend/.env
     depends_on:
+      - db
       - redis
+    command: >
+      sh -c "
+      while ! nc -z db 3306; do sleep 1; done;
+      alembic upgrade head &&
+      uvicorn main:app --host 0.0.0.0 --port 8000
+      "
 
   celery:
     build: ./backend
@@ -14,11 +21,22 @@ services:
     env_file:
       - ./backend/.env
     depends_on:
+      - db
       - redis
       - api
 
   db:
-    image: mariadb:latest
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: your_db_name
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
 
   redis:
     image: redis:alpine
@@ -38,3 +56,6 @@ services:
       - "5679:5679"
     depends_on:
       - api
+
+volumes:
+  mysql_data:
