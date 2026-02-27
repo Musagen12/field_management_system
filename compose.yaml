@@ -17,6 +17,9 @@ services:
       - redis
       - api
 
+  db:
+    image: mariadb:latest
+
   redis:
     image: redis:alpine
     ports:
