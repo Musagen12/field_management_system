@@ -74,15 +74,16 @@ services:
     environment:
       MYSQL_DATABASE: test_migrations
       MYSQL_ROOT_PASSWORD: kali
+      MYSQL_ROOT_HOST: "%"
     ports:
-      - "3307:3306"
+      - "3387:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
   redis:
     image: redis:alpine
     ports:
-      - "6378:6379"
+      - "6398:6379"
 
   migrate:
     build: ./backend
@@ -109,17 +110,38 @@ services:
 
   seed-admin:
     build: ./backend
-    command: python3 seed-admin.py
+    command: >
+      sh -c "
+      while ! nc -z db 3306; do sleep 2; done;
+      python3 seed_admin.py
+      "
     env_file:
       - ./backend/.env
-
     depends_on:
       - api
       - db
-
+  # celery:
+  #   build: ./backend
+  #   command: celery -A celery_app worker --beat --loglevel=info
+  #   env_file:
+  #     - ./backend/.env
+  #   depends_on:
+  #     - db
+  #     - redis
+  #     - api
   celery:
     build: ./backend
-    command: celery -A celery_app worker --beat --loglevel=info
+    command: celery -A celery_app worker --loglevel=info
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db
+      - redis
+      - api
+
+  celery-beat:
+    build: ./backend
+    command: celery -A celery_app beat --loglevel=info
     env_file:
       - ./backend/.env
     depends_on:
