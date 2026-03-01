@@ -1,3 +1,72 @@
+# services:
+#   db:
+#     image: mariadb:10.6
+#     restart: always
+#     environment:
+#       MYSQL_DATABASE: test_migrations
+#       MYSQL_ROOT_PASSWORD: kali
+#     ports:
+#       - "3307:3306"
+#     volumes:
+#       - mysql_data:/var/lib/mysql
+
+#   redis:
+#     image: redis:alpine
+#     ports:
+#       - "6378:6379"
+
+#   migrate:
+#     build: ./backend
+#     env_file:
+#       - ./backend/.env
+#     depends_on:
+#       - db
+#     command: >
+#       sh -c "
+#       while ! nc -z db 3306; do sleep 2; done;
+#       alembic upgrade head
+#       "
+
+#   api:
+#     build: ./backend
+#     ports:
+#       - "8000:8000"
+#     env_file:
+#       - ./backend/.env
+#     depends_on:
+#       - db
+#       - redis
+#       - migrate
+
+#   celery:
+#     build: ./backend
+#     command: celery -A celery_app worker --beat --loglevel=info
+#     env_file:
+#       - ./backend/.env
+#     depends_on:
+#       - db
+#       - redis
+#       - api
+
+#   task-dispatch-pro:
+#     build: ./task-dispatch-pro
+#     ports:
+#       - "6057:6057"
+#     depends_on:
+#       - api
+
+#   worker-insight-hub:
+#     build: ./worker-insight-hub
+#     ports:
+#       - "5679:5679"
+#     depends_on:
+#       - api
+
+# volumes:
+#   mysql_data:
+
+
+
 services:
   db:
     image: mariadb:10.6
@@ -37,6 +106,16 @@ services:
       - db
       - redis
       - migrate
+
+  seed-admin:
+    build: ./backend
+    command: python3 seed-admin.py
+    env_file:
+      - ./backend/.env
+
+    depends_on:
+      - api
+      - db
 
   celery:
     build: ./backend
